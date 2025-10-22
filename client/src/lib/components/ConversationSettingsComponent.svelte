@@ -4,7 +4,7 @@
     import { get } from 'svelte/store';
     import * as chat from '../../application/services/chatService';
     import * as auth from '../../application/services/authService';
-    import { currentPage } from '../../lib/stores/navigation';
+    import { currentPage, navigateTo } from '../../lib/stores/navigation';
     import { refreshConversations } from '../../lib/stores/conversations';
 
     let { conversationId } = $props();
@@ -127,7 +127,7 @@
     }
 
     function goBack() {
-        currentPage.set('chat');
+        navigateTo('chat', conversationId);
     }
 </script>
 

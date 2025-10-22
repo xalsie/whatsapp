@@ -1,28 +1,64 @@
 <script lang="ts">
-    // Page d'accueil avec navigation par state
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
+    import { get } from 'svelte/store';
     import { goto } from '@roxi/routify';
     import * as auth from '../application/services/authService';
-    import { currentPage, currentChatId } from '../lib/stores/navigation';
+    import { currentPage, currentChatId, navigateTo, urlFor } from '../lib/stores/navigation';
+    import { parseHashValue } from '../lib/navigation/routes';
+    import type { Page } from '../lib/navigation/types';
 
     import Sidebar from '../lib/components/Sidebar.svelte';
-    import ConversationsComponent from '../lib/components/ConversationsComponent.svelte';
     import ProfileComponent from '../lib/components/ProfileComponent.svelte';
     import NewConversationComponent from '../lib/components/NewConversationComponent.svelte';
     import ChatComponent from '../lib/components/ChatComponent.svelte';
-    import LoginComponent from '../lib/components/LoginComponent.svelte';
     import ConversationSettingsComponent from '../lib/components/ConversationSettingsComponent.svelte';
 
-    let page: string = 'conversations';
+    let page: Page = null;
     let chatId: string | null = null;
 
-    currentPage.subscribe(value => page = value);
-    currentChatId.subscribe(value => chatId = value);
+    const unsubPage = currentPage.subscribe((v) => (page = v));
+    const unsubChat = currentChatId.subscribe((v) => (chatId = v));
+
+    // Route helpers live in ../lib/navigation/routes
+
+    function syncUrl() {
+        const p = get(currentPage);
+        const id = get(currentChatId);
+        const url = urlFor(p, id ?? null);
+        if (location.hash !== url.split('#')[1]) {
+            history.pushState(null, '', url);
+        }
+    }
+
+    function parseHash() {
+        const raw = (location.hash || '#/').replace(/^#\//, '');
+        const res = parseHashValue(location.hash);
+        currentPage.set(res.page);
+        currentChatId.set(res.id);
+    }
+
+    const unsubSync1 = currentPage.subscribe(() => syncUrl());
+    const unsubSync2 = currentChatId.subscribe(() => syncUrl());
 
     onMount(() => {
+        parseHash();
+
+        window.addEventListener('hashchange', parseHash);
+
         if (!auth.checkTokenExpiry()) {
             $goto('/login');
+            return;
         }
+
+        syncUrl();
+    });
+
+    onDestroy(() => {
+        unsubPage();
+        unsubChat();
+        unsubSync1();
+        unsubSync2();
+        window.removeEventListener('hashchange', parseHash);
     });
 </script>
 

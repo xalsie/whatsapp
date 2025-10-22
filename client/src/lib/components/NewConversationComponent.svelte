@@ -1,7 +1,7 @@
 <script lang="ts">
     import { get } from 'svelte/store';
     import * as api from '../../application/services/chatService';
-    import { currentPage, currentChatId } from '../../lib/stores/navigation';
+    import { currentPage, currentChatId, navigateTo } from '../../lib/stores/navigation';
     import { refreshConversations } from '../../lib/stores/conversations';
 
     let conversationName = $state('');
@@ -23,8 +23,7 @@
                     refreshFn();
                 }
 
-                currentPage.set('chat');
-                currentChatId.set(conversation._id);
+                navigateTo('chat', conversation._id);
                 return;
             }
         } catch (e) {
