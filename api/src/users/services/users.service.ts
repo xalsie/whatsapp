@@ -35,14 +35,21 @@ export class UsersService {
         if (!conversation) {
             throw new Error('General conversation not found');
         }
-        const conversationMembers: string[] = [
-            ...conversation.members.map((id) => String(id)), // TODO: C'est ici
-            String(createdUser.id),
-        ];
-        console.log('Updated conversation members:', conversationMembers);
-        await this.conversationPort.update(generalConversation, {
-            members: conversationMembers,
+
+        const existingMemberIds = conversation.members.map((member) => {
+            if (typeof member === 'string') {
+                return member;
+            }
+            return String((member as UserEntity).id);
         });
+
+        if (!existingMemberIds.includes(String(createdUser.id))) {
+            existingMemberIds.push(String(createdUser.id));
+            console.log('Updated conversation members:', existingMemberIds);
+            await this.conversationPort.update(generalConversation, {
+                members: existingMemberIds,
+            });
+        }
         return createdUser;
     }
 
