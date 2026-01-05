@@ -38,7 +38,7 @@ export class UpdateConversationUseCase {
         }
 
         let memberIds: string[] = conversation.members.map((m: string | { id: string }) =>
-            typeof m === 'string' ? m : m.id.toString(),
+            typeof m === 'string' ? m.toString() : m.id.toString(),
         );
 
         if (dto.addMembers && dto.addMembers.length > 0) {

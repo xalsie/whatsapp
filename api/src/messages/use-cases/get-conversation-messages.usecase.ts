@@ -16,9 +16,24 @@ export class GetConversationMessagesUseCase {
             throw new Error('Conversation not found');
         }
 
-        const isMember = conversation.members.some((member) =>
-            typeof member === 'string' ? member === userId : member._id.toString() === userId,
-        );
+        const isMember = conversation.members.some((member) => {
+            console.log(
+                'Checking member:',
+                typeof member === 'string'
+                    ? member.toString()
+                    : (member as { _id?: { toString: () => string } })._id?.toString(),
+                'against userId:',
+                userId,
+            );
+            if (
+                typeof member === 'string'
+                    ? member === userId
+                    : (member as { _id?: { toString: () => string } })._id?.toString() === userId
+            ) {
+                console.log('Member match found');
+                return true;
+            }
+        });
 
         if (!isMember) {
             throw new Error('Access denied: You are not a member of this conversation');

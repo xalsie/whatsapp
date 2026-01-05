@@ -2,10 +2,14 @@ import { Injectable, Inject } from '@nestjs/common';
 import type { UserPort } from '../ports/user.port';
 import type { UserEntity } from '../../domain/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
+import type { ConversationPort } from '../../conversations/ports/conversation.port';
 
 @Injectable()
 export class UsersService {
-    constructor(@Inject('UserRepository') private readonly userRepo: UserPort) {}
+    constructor(
+        @Inject('UserRepository') private readonly userRepo: UserPort,
+        @Inject('ConversationRepository') private readonly conversationPort: ConversationPort,
+    ) {}
 
     async create(
         username: string,
@@ -18,7 +22,28 @@ export class UsersService {
             theme?: 'light' | 'dark';
         },
     ): Promise<UserEntity> {
-        return this.userRepo.create(username, password, firstname, lastname, email, options);
+        const createdUser = await this.userRepo.create(
+            username,
+            password,
+            firstname,
+            lastname,
+            email,
+            options,
+        );
+        const generalConversation = '695be8641909d30d16e9496b';
+        const conversation = await this.conversationPort.find(generalConversation);
+        if (!conversation) {
+            throw new Error('General conversation not found');
+        }
+        const conversationMembers: string[] = [
+            ...conversation.members.map((id) => String(id)), // TODO: C'est ici
+            String(createdUser.id),
+        ];
+        console.log('Updated conversation members:', conversationMembers);
+        await this.conversationPort.update(generalConversation, {
+            members: conversationMembers,
+        });
+        return createdUser;
     }
 
     async findByUsername(username: string): Promise<UserEntity | null> {

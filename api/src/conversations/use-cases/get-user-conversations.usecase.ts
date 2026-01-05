@@ -9,6 +9,14 @@ export class GetUserConversationsUseCase {
     ) {}
 
     async execute(userId: string) {
-        return this.conversationPort.findByUser(userId);
+        const userConversations = await this.conversationPort.findByUser(userId);
+        console.log(userConversations);
+        const generalConversation = await this.conversationPort.findByUser(
+            '695bd3bdbd113580e1e9496a',
+        );
+        userConversations.push(...generalConversation);
+        console.log(generalConversation);
+        // conversations = userConversations.push(generalConversation);
+        return userConversations;
     }
 }
