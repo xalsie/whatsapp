@@ -32,7 +32,7 @@ export class AuthController {
             body.lastname,
             body.email,
         );
-        return { id: user._id, username: user.username };
+        return { id: user.id, username: user.username };
     }
 
     @Post('login')
@@ -42,12 +42,12 @@ export class AuthController {
             throw new UnauthorizedException('Invalid credentials');
         }
         const token = signJwt({
-            id: user._id,
+            id: user.id,
             username: user.username,
             email: user.email,
         });
         return {
-            id: user._id,
+            id: user.id,
             username: user.username,
             token,
             firstname: user.firstname,

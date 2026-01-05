@@ -14,7 +14,7 @@ export class MongooseMessageRepository implements MessageRepository, MessagePort
 
     async create(from: string, text: string, conversationId: string): Promise<MessageEntity> {
         const created = new this.messageModel({ from, text, conversationId });
-        return (await created.save()) as MessageEntity;
+        return await created.save();
     }
 
     async send(from: string, text: string, conversationId: string): Promise<MessageEntity> {
@@ -23,7 +23,7 @@ export class MongooseMessageRepository implements MessageRepository, MessagePort
 
     async findAll(): Promise<MessageEntity[]> {
         const docs = await this.messageModel.find().sort({ createdAt: 1 }).exec();
-        return docs as MessageEntity[];
+        return docs;
     }
 
     async list(): Promise<MessageEntity[]> {

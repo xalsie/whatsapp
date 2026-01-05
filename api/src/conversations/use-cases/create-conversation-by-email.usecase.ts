@@ -29,7 +29,7 @@ export class CreateConversationByEmailUseCase {
             if (!user) {
                 throw new Error(`User with email ${email} not found`);
             }
-            memberIds.push(user._id);
+            memberIds.push(user.id);
         }
 
         return this.conversationPort.create(dto.name || 'New Conversation', memberIds, creatorId);

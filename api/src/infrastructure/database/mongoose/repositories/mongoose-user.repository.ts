@@ -30,25 +30,25 @@ export class MongooseUserRepository implements UserRepository {
             email,
             options,
         });
-        return (await created.save()) as UserEntity;
+        return await created.save();
     }
 
     async findByUsername(username: string): Promise<UserEntity | null> {
         const doc = await this.userModel.findOne({ username }).exec();
         if (!doc) return null;
-        return doc as UserEntity;
+        return doc;
     }
 
     async findByEmail(email: string): Promise<UserEntity | null> {
         const doc = await this.userModel.findOne({ email }).exec();
         if (!doc) return null;
-        return doc as UserEntity;
+        return doc;
     }
 
     async findById(id: string): Promise<UserEntity | null> {
         const doc = await this.userModel.findById(id).exec();
         if (!doc) return null;
-        return doc as UserEntity;
+        return doc;
     }
 
     async updateProfile(
@@ -59,6 +59,6 @@ export class MongooseUserRepository implements UserRepository {
             .findByIdAndUpdate(id, { $set: updates }, { new: true })
             .exec();
         if (!doc) return null;
-        return doc as UserEntity;
+        return doc;
     }
 }

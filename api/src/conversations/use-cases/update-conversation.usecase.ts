@@ -22,7 +22,7 @@ export class UpdateConversationUseCase {
         if (typeof conversation.admin === 'string') {
             adminId = conversation.admin;
         } else if (conversation.admin && typeof conversation.admin === 'object') {
-            adminId = conversation.admin._id.toString();
+            adminId = conversation.admin.id.toString();
         } else {
             adminId = '';
         }
@@ -37,8 +37,8 @@ export class UpdateConversationUseCase {
             updates.name = dto.name;
         }
 
-        let memberIds: string[] = conversation.members.map((m: string | { _id: string }) =>
-            typeof m === 'string' ? m : m._id.toString(),
+        let memberIds: string[] = conversation.members.map((m: string | { id: string }) =>
+            typeof m === 'string' ? m : m.id.toString(),
         );
 
         if (dto.addMembers && dto.addMembers.length > 0) {
@@ -47,7 +47,7 @@ export class UpdateConversationUseCase {
                 if (!user) {
                     throw new NotFoundException(`User with email ${email} not found`);
                 }
-                const userIdStr = user._id.toString();
+                const userIdStr = user.id.toString();
                 if (!memberIds.includes(userIdStr)) {
                     memberIds.push(userIdStr);
                 }
